@@ -683,17 +683,6 @@ class Product_Import extends Stepped_Job {
 			if ( ! count( $data['variations'] ) ) {
 				return null;
 			}
-
-			$data['attributes'] = array(
-				array(
-					'name'      => 'Attribute',
-					'slug'      => 'attribute',
-					'position'  => 0,
-					'visible'   => true,
-					'variation' => true,
-					'options'   => str_replace( '|', ' - ', wp_list_pluck( $data['variations'], 'name' ) ),
-				),
-			);
 		} else { // simple product
 			try {
 
