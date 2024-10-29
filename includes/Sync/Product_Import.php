@@ -619,8 +619,8 @@ class Product_Import extends Stepped_Job {
 					$option_values = $options_data[$option_id]['values'];
 				} else {
 					// Fetch option name from Square.
-					$response      = wc_square()->get_api()->retrieve_catalog_object( $option_id );
-					$option_name   = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
+					$response    = wc_square()->get_api()->retrieve_catalog_object( $option_id );
+					$option_name = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
 					
 					$option_values_object = $response->get_data()->getObject()->getItemOptionData()->getValues();
 					$option_values = array();
