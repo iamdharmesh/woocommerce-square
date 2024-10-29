@@ -111,11 +111,10 @@ class Product_Import extends Stepped_Job {
 			$options_data[ $object->getId() ]['value_ids'] = $option_values_ids;
 		}
 
-		set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
-
 		if ( $response->get_data()->getCursor() ) {
 			$this->set_attr( 'fetch_options_data_cursor', $response->get_data()->getCursor() );
 		} else {
+			set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
 			$this->set_attr( 'fetch_options_data_cursor', null );
 			$this->complete_step( 'fetch_options_data' );
 		}
