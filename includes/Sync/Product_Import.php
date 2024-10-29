@@ -738,7 +738,52 @@ class Product_Import extends Stepped_Job {
 		if ( in_array( $variation_data->getSku(), array( '', null ), true ) ) {
 			throw new \Exception( esc_html__( 'Variations with missing SKUs cannot be imported.', 'woocommerce-square' ) );
 		}
+			
+		$variation_options = $variation_data->getItemOptionValues();
 
+		$attributes = array();
+		foreach ( $variation_options as $variation_option ) {		
+			$option_id       = $variation_option->getItemOptionId();
+			$option_value_id = $variation_option->getItemOptionValueId();
+
+			$options_data = get_transient( 'wc_square_options_data' );
+
+			if ( isset ( $options_data[$option_id] ) && isset ( $options_data[$option_id]['value_ids'][$option_value_id] ) ) {
+				$option_name    = $options_data[$option_id]['name'];
+				$option_matched = $options_data[$option_id]['value_ids'][$option_value_id];
+			} else {
+				// Fetch option data from Square.
+				$response    = wc_square()->get_api()->retrieve_catalog_object( $option_id );
+				$option_name = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
+				
+				$option_values_object = $response->get_data()->getObject()->getItemOptionData()->getValues();
+				$option_matched       = '';
+				$option_values        = array();
+				$option_value_ids     = array();
+				foreach ( $option_values_object as $option_value ) {
+					$option_value_name = $option_value->getItemOptionValueData()->getName();
+					$option_values[] = $option_value_name;
+					$option_value_ids[$option_value->getId()] = $option_value_name;
+					if( $option_value_id === $option_value->getId() ) {
+						$option_matched = $option_value_name; 
+					}
+				}
+
+				$options_data[$option_id] = array(
+					'name'      => $option_name,
+					'values'    => $option_values,
+					'value_ids' => $option_value_ids,
+				);
+				set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
+			}
+
+			$attributes[] = array(
+				'name'         => $option_name,
+				'is_variation' => true,
+				'option'       => $option_matched,
+			);
+		}
+		
 		$data = array(
 			'name'           => $variation_data->getName(),
 			'sku'            => $variation_data->getSku(),
