@@ -598,6 +598,11 @@ class Product_Import extends Stepped_Job {
 		if ( 'variable' === $data['type'] ) {
 			$options = $catalog_object->getItemData()->getItemOptions() ? $catalog_object->getItemData()->getItemOptions() : array();
 
+			// Stop if there are no options.
+			if ( ! array( $options ) ) {
+				return null;
+			}
+
 			$data['attributes'] = array();
 			$data['variations'] = array();
 
