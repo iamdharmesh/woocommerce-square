@@ -794,13 +794,7 @@ class Product_Import extends Stepped_Job {
 				'item_variation_id'      => $variation->getId(),
 				'item_variation_version' => $variation->getVersion(),
 			),
-			'attributes'     => array(
-				array(
-					'name'         => 'Attribute',
-					'is_variation' => true,
-					'option'       => str_replace( '|', ' - ', $variation_data->getName() ),
-				),
-			),
+			'attributes'     => $attributes,
 		);
 
 		return $data;
