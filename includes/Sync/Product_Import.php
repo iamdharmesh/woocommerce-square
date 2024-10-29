@@ -79,6 +79,10 @@ class Product_Import extends Stepped_Job {
 
 	/**
 	 * Fetch the option (attribute) names from Square.
+	 *
+	 * @since x.x.x
+	 *
+	 * @throws \Exception
 	 */
 	protected function fetch_options_data() {
 		$options_data = get_transient( 'wc_square_options_data' );
