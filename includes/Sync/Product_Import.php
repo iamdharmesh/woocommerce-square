@@ -24,6 +24,7 @@
 namespace WooCommerce\Square\Sync;
 
 use Square\Models\SearchCatalogObjectsResponse;
+use Square\Models\ListCatalogResponse;
 use WooCommerce\Square\Handlers\Category;
 use WooCommerce\Square\Handlers\Product;
 use WooCommerce\Square\Utilities\Money_Utility;
@@ -43,6 +44,7 @@ class Product_Import extends Stepped_Job {
 		$this->set_attr(
 			'next_steps',
 			array(
+				'fetch_options_data',
 				'import_products',
 				'import_inventory',
 			)
@@ -74,6 +76,50 @@ class Product_Import extends Stepped_Job {
 		return max( 1, min( 1000, $limit ) );
 	}
 
+
+	/**
+	 * Fetch the option (attribute) names from Square.
+	 */
+	protected function fetch_options_data() {
+		$options_data = get_transient( 'wc_square_options_data' );
+		$cursor       = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+
+		if ( ! is_array( $options_data ) ) {
+			$options_data = array();
+		}
+
+		$response = wc_square()->get_api()->list_catalog( $cursor, array( 'ITEM_OPTION' ) );
+
+		if ( ! $response->get_data() instanceof ListCatalogResponse ) {
+			throw new \Exception( 'API response data is invalid' );
+		}
+
+		$objects = $response->get_data()->getObjects() ? $response->get_data()->getObjects() : array();
+
+		foreach ( $objects as $object ) {
+			$options_data[ $object->getId() ]['name']   = $object->getItemOptionData()->getDisplayName();
+			
+			$option_values_object = $object->getItemOptionData()->getValues();
+			$option_values        = array();
+			$option_values_ids    = array();
+
+			foreach ( $option_values_object as $option_value ) {
+				$option_values[] = $option_value->getItemOptionValueData()->getName();
+				$option_values_ids[$option_value->getId()] = $option_value->getItemOptionValueData()->getName();
+			}
+			$options_data[ $object->getId() ]['values'] = $option_values;
+			$options_data[ $object->getId() ]['value_ids'] = $option_values_ids;
+		}
+
+		set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
+
+		if ( $response->get_data()->getCursor() ) {
+			$this->set_attr( 'fetch_options_data_cursor', $response->get_data()->getCursor() );
+		} else {
+			$this->set_attr( 'fetch_options_data_cursor', null );
+			$this->complete_step( 'fetch_options_data' );
+		}
+	}
 
 	/**
 	 * Performs a product import.
