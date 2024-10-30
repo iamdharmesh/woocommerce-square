@@ -820,6 +820,27 @@ class Product_Import extends Stepped_Job {
 		return $data_attributes;
 	}
 
+	/**
+	 * Extracts attributes from Square variations.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $variations the variations
+	 * @return array
+	 */
+	protected function extract_attributes_from_square_variations( $variations ) {
+
+		$attributes[] = array(
+			'name'         => 'Attribute',
+			'visible'      => true,
+			'variation'    => true,
+			'options'      => wp_list_pluck( $variations, 'name' ),
+		);
+
+		return $attributes;
+	}
+
+
 	protected function save_product_images( $product_id, $images ) {}
 
 
