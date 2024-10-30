@@ -704,11 +704,11 @@ class Product_Import extends Stepped_Job {
 		$variation_options = $variation_data->getItemOptionValues();
 
 		$attributes = array();
-		foreach ( $variation_options as $variation_option ) {		
+
+		foreach ( $variation_options as $variation_option ) {
 			$option_id       = $variation_option->getItemOptionId();
 			$option_value_id = $variation_option->getItemOptionValueId();
-
-			$options_data = get_transient( 'wc_square_options_data' );
+			$options_data    = get_transient( 'wc_square_options_data' );
 
 			if ( isset ( $options_data[$option_id] ) && isset ( $options_data[$option_id]['value_ids'][$option_value_id] ) ) {
 				$option_name    = $options_data[$option_id]['name'];
@@ -722,11 +722,14 @@ class Product_Import extends Stepped_Job {
 				$option_matched       = '';
 				$option_values        = array();
 				$option_value_ids     = array();
+
 				foreach ( $option_values_object as $option_value ) {
 					$option_value_name = $option_value->getItemOptionValueData()->getName();
-					$option_values[] = $option_value_name;
+					$option_values[]   = $option_value_name;
+
 					$option_value_ids[$option_value->getId()] = $option_value_name;
-					if( $option_value_id === $option_value->getId() ) {
+
+					if ( $option_value_id === $option_value->getId() ) {
 						$option_matched = $option_value_name; 
 					}
 				}
@@ -736,6 +739,7 @@ class Product_Import extends Stepped_Job {
 					'values'    => $option_values,
 					'value_ids' => $option_value_ids,
 				);
+
 				set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
 			}
 
