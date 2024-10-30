@@ -595,6 +595,7 @@ class Product_Import extends Stepped_Job {
 				'item_id'      => $catalog_object->getId(),
 				'item_version' => $catalog_object->getVersion(),
 			),
+			'custom_meta' => array(),
 		);
 
 		// variable product
@@ -647,9 +648,11 @@ class Product_Import extends Stepped_Job {
 			$options = $catalog_object->getItemData()->getItemOptions() ? $catalog_object->getItemData()->getItemOptions() : array();
 
 			if ( count( $options ) ) {
-				$data['attributes'] = $this->extract_attributes_from_square_options( $options );
+				$data['attributes']                     = $this->extract_attributes_from_square_options( $options );
+				$data['custom_meta']['dynamic_options'] = true;
 			} else {
-				$data['attributes'] = $this->extract_attributes_from_square_variations( $data['variations'] );
+				$data['attributes']                     = $this->extract_attributes_from_square_variations( $data['variations'] );
+				$data['custom_meta']['dynamic_options'] = false;
 			}
 
 		} else { // simple product
