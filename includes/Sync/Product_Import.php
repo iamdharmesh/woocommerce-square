@@ -645,6 +645,13 @@ class Product_Import extends Stepped_Job {
 			if ( ! count( $data['variations'] ) ) {
 				return null;
 			}
+
+			if ( count( $options ) ) {
+				$data['attributes'] = $this->extract_attributes_from_square_options( $options );
+			} else {
+				$data['attributes'] = $this->extract_attributes_from_square_variations( $data['variations'] );
+			}
+
 		} else { // simple product
 			try {
 
