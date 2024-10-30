@@ -770,6 +770,55 @@ class Product_Import extends Stepped_Job {
 		return $data;
 	}
 
+	/**
+	 * Creates a product from Square data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param array $data the product data
+	 * @return int
+	 * @throws \Exception
+	 */
+	protected function extract_attributes_from_square_options( $options ) {
+
+		$data_attributes = array();
+
+		foreach ( $options as $option ) {
+			$option_id = $option->getItemOptionId();
+
+			$options_data = get_transient( 'wc_square_options_data' );
+
+			if ( isset ( $options_data[$option_id] ) && isset ( $options_data[$option_id]['values'] ) ) {
+				$option_name   = $options_data[$option_id]['name'];
+				$option_values = $options_data[$option_id]['values'];
+			} else {
+				// Fetch option name from Square.
+				$response    = wc_square()->get_api()->retrieve_catalog_object( $option_id );
+				$option_name = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
+				
+				$option_values_object = $response->get_data()->getObject()->getItemOptionData()->getValues();
+				$option_values = array();
+				foreach ( $option_values_object as $option_value ) {
+					$option_values[] = $option_value->getItemOptionValueData()->getName();
+				}
+
+				$options_data[$option_id] = array(
+					'name'   => $option_name,
+					'values' => $option_values,
+				);
+				set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
+			}
+			
+			$data_attributes[] = array(
+				'name'         => $option_name,
+				'visible'      => true,
+				'variation'    => true,
+				'options'      => $option_values,
+			);
+		}
+
+		return $data_attributes;
+	}
 
 	protected function save_product_images( $product_id, $images ) {}
 
