@@ -1046,6 +1046,13 @@ class Product_Import extends Stepped_Job {
 			wp_set_object_terms( $product_id, $term_ids, 'product_cat' );
 		}
 
+		// Update custom meta.
+		if ( $data['custom_meta'] ) {
+			foreach ( $data['custom_meta'] as $meta_key => $meta_value ) {
+				update_post_meta( $product_id, $meta_key, $meta_value );
+			}
+		}
+
 		// clear/invalidate cache before calling WooCommerce\Square\Handlers\Product functions (these functions call wc_get_product() and save(), overriding our changes)
 		if ( is_callable( '\WC_Cache_Helper::invalidate_cache_group' ) ) {
 			\WC_Cache_Helper::invalidate_cache_group( 'product_' . $product_id );
