@@ -599,8 +599,6 @@ class Product_Import extends Stepped_Job {
 
 		// variable product
 		if ( 'variable' === $data['type'] ) {
-			$options = $catalog_object->getItemData()->getItemOptions() ? $catalog_object->getItemData()->getItemOptions() : array();
-
 			$data['attributes'] = array();
 			$data['variations'] = array();
 
@@ -645,6 +643,8 @@ class Product_Import extends Stepped_Job {
 			if ( ! count( $data['variations'] ) ) {
 				return null;
 			}
+
+			$options = $catalog_object->getItemData()->getItemOptions() ? $catalog_object->getItemData()->getItemOptions() : array();
 
 			if ( count( $options ) ) {
 				$data['attributes'] = $this->extract_attributes_from_square_options( $options );
