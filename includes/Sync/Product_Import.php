@@ -745,7 +745,15 @@ class Product_Import extends Stepped_Job {
 				'option'       => $option_matched,
 			);
 		}
-		
+
+		if ( ! $variation_options ) {
+			$attributes[] = array(
+				'name'         => 'Attribute',
+				'is_variation' => true,
+				'option'       => $variation_data->getName(),
+			);
+		}
+
 		$data = array(
 			'name'           => $variation_data->getName(),
 			'sku'            => $variation_data->getSku(),
