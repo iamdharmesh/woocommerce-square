@@ -124,7 +124,19 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						}
 					}
 	
-					
+					// If name does not exist, create a new option in Square.
+					if ( ! $name_exists ) {
+
+						// Initialize the option object with a temp ID prefixed with #.
+						$option = new \Square\Models\CatalogObject( 'ITEM_OPTION', '#' . $attribute_ID );
+						$option->setItemOptionData( new \Square\Models\CatalogItemOption() );
+						$option->getItemOptionData()->setName( $attribute_name );
+						$option->getItemOptionData()->setDisplayName( $attribute_name );
+
+						$options_value_data = array();
+
+						
+					}
 				}
 
 				// Set the item_option_id for each option to the product.
