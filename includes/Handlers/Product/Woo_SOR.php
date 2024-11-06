@@ -90,7 +90,21 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 		// if dealing with a variable product, try and match the variations
 		if ( $product->is_type( 'variable' ) ) {
 
-			$product_variation_ids = $product->get_children();
+			/**
+			 * If there are multiple variations, it must be a considered as Dynamic Options supported product.
+			 * Create/Update and Assign Dynamic Options only if a product
+			 * has multiple attributes OR options already exists in Square.
+			 */
+			if (
+				( is_array( $catalog_options ) && count( $catalog_options ) > 0 )
+				|| count ( $attributes ) > 1
+			) {
+				
+			} else {
+				// If the product has only one attribute, it's not a dynamic options product.
+				// So, remove the dynamic options meta.
+				delete_post_meta( $product->get_id(), '_dynamic_options' );
+			}
 
 			if ( is_array( $catalog_variations ) ) {
 
