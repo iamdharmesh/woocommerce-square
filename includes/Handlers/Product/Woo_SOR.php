@@ -99,6 +99,12 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				( is_array( $catalog_options ) && count( $catalog_options ) > 0 )
 				|| count ( $attributes ) > 1
 			) {
+				$options_IDs            = array();
+				$options_data_transient = get_transient( 'wc_square_options_data' );
+
+				// Set the product as a dynamic options product.
+				update_post_meta( $product->get_id(), '_dynamic_options', true );
+				
 				
 			} else {
 				// If the product has only one attribute, it's not a dynamic options product.
