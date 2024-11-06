@@ -597,6 +597,56 @@ class API extends Base {
 		return $this->perform_request( $request );
 	}
 
+	/**
+	 * Fetch the option (attribute) names from Square.
+	 *
+	 * @since x.x.x
+	 *
+	 * @throws \Exception
+	 */
+	public function retrieve_options_data( $cursor = '', $refresh = false ) {
+		$options_data = get_transient( 'wc_square_options_data' );
+
+		// Stop if transient exists and we don't want to refresh.
+		if ( $options_data && ! $refresh ) {
+			return array( '', $options_data, $cursor );
+		}
+
+		// If transient doesn't exist, initialize the array.
+		if ( ! is_array( $options_data ) ) {
+			$options_data = array();
+		}
+
+		$response = $this->list_catalog( $cursor, array( 'ITEM_OPTION' ) );
+
+		if ( ! $response->get_data() instanceof ListCatalogResponse ) {
+			throw new \Exception( 'API response data is invalid' );
+		}
+
+		$objects = $response->get_data()->getObjects() ? $response->get_data()->getObjects() : array();
+
+		foreach ( $objects as $object ) {
+			$options_data[ $object->getId() ]['name'] = $object->getItemOptionData()->getDisplayName();
+			
+			$option_values_object = $object->getItemOptionData()->getValues();
+			$option_values        = array();
+			$option_values_ids    = array();
+
+			foreach ( $option_values_object as $option_value ) {
+				$option_values[] = $option_value->getItemOptionValueData()->getName();
+				$option_values_ids[$option_value->getId()] = $option_value->getItemOptionValueData()->getName();
+			}
+			$options_data[ $object->getId() ]['values'] = $option_values;
+			$options_data[ $object->getId() ]['value_ids'] = $option_values_ids;
+		}
+
+		$cursor = $response->get_data()->getCursor();
+		if ( ! $cursor ) {
+			set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
+		}
+
+		return array( $response, $options_data, $cursor );
+	}
 
 	/** Locations methods *********************************************************************************************/
 
