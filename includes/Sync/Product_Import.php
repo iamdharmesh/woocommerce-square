@@ -620,10 +620,10 @@ class Product_Import extends Stepped_Job {
 			$options = $catalog_object->getItemData()->getItemOptions() ? $catalog_object->getItemData()->getItemOptions() : array();
 
 			if ( count( $options ) ) {
-				$data['attributes']                     = $this->extract_attributes_from_square_options( $options );
+				$data['attributes']                      = $this->extract_attributes_from_square_options( $options );
 				$data['custom_meta']['_dynamic_options'] = true;
 			} else {
-				$data['attributes']                     = $this->extract_attributes_from_square_variations( $data['variations'] );
+				$data['attributes']                      = $this->extract_attributes_from_square_variations( $data['variations'] );
 				$data['custom_meta']['_dynamic_options'] = false;
 			}
 
