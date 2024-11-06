@@ -55,6 +55,30 @@ class Manual_Synchronization extends Stepped_Job {
 	const BATCH_INVENTORY_COUNTS_LIMIT = 125;
 
 	/**
+	 * Executes the next step of this job.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return \stdClass the job object
+	 */
+	public function run() {
+		// If the option is set to refresh the sync cycle, clear the next steps and completed steps.
+		// The refresh is requested when we do not have Square's Dynamic options data ready.
+		$refresh_sync_cycle = get_option( 'woocommerce_square_refresh_sync_cycle', false );
+		if ( $refresh_sync_cycle && $refresh_sync_cycle < 3 ) {
+			$this->set_attr( 'next_steps', array() );
+			$this->set_attr( 'completed_steps', array() );
+
+			update_option( 'woocommerce_square_refresh_sync_cycle', intval( $refresh_sync_cycle ) + 1 );
+		} else { 
+			// Stop retrying after 3 attempts.
+			delete_option( 'woocommerce_square_refresh_sync_cycle' );
+		}
+
+		parent::run();
+	}
+
+	/**
 	 * Validates the products attached to this job.
 	 *
 	 * @since 2.0.0
