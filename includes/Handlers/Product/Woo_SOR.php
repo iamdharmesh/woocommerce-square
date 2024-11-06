@@ -114,6 +114,16 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					
 				}
 
+				// Set the item_option_id for each option to the product.
+				$product_options = array();
+
+				foreach ( $options_IDs as $option_id ) {
+					$CatalogItemOptionForItem = new \Square\Models\CatalogItemOptionForItem();
+					$CatalogItemOptionForItem->setItemOptionId( $option_id );
+					$product_options[] = $CatalogItemOptionForItem;
+				}
+
+				$catalog_object->getItemData()->setItemOptions( $product_options );
 			} else {
 				// If the product has only one attribute, it's not a dynamic options product.
 				// So, remove the dynamic options meta.
