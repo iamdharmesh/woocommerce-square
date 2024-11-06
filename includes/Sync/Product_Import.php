@@ -24,7 +24,6 @@
 namespace WooCommerce\Square\Sync;
 
 use Square\Models\SearchCatalogObjectsResponse;
-use Square\Models\ListCatalogResponse;
 use WooCommerce\Square\Handlers\Category;
 use WooCommerce\Square\Handlers\Product;
 use WooCommerce\Square\Utilities\Money_Utility;
