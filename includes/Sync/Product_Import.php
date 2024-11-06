@@ -727,6 +727,7 @@ class Product_Import extends Stepped_Job {
 
 			$attributes[] = array(
 				'name'         => $option_name,
+				'slug'         => sanitize_title( $option_name ),
 				'is_variation' => true,
 				'option'       => $option_matched,
 			);
@@ -757,7 +758,7 @@ class Product_Import extends Stepped_Job {
 	}
 
 	/**
-	 * Creates a product from Square data.
+	 * Extracts attributes from Square options.
 	 *
 	 * @since x.x.x
 	 *
@@ -779,11 +780,11 @@ class Product_Import extends Stepped_Job {
 				$option_values = $options_data[$option_id]['values'];
 			} else {
 				// Fetch option name from Square.
-				$response    = wc_square()->get_api()->retrieve_catalog_object( $option_id );
-				$option_name = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
-				
+				$response             = wc_square()->get_api()->retrieve_catalog_object( $option_id );
+				$option_name          = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
 				$option_values_object = $response->get_data()->getObject()->getItemOptionData()->getValues();
-				$option_values = array();
+				$option_values        = array();
+
 				foreach ( $option_values_object as $option_value ) {
 					$option_values[] = $option_value->getItemOptionValueData()->getName();
 				}
@@ -797,6 +798,7 @@ class Product_Import extends Stepped_Job {
 			
 			$data_attributes[] = array(
 				'name'         => $option_name,
+				'slug'         => sanitize_title( $option_name ),
 				'visible'      => true,
 				'variation'    => true,
 				'options'      => $option_values,
