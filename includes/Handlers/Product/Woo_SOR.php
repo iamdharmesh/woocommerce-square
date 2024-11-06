@@ -339,6 +339,29 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			if ( 1 === count ( $variation_items ) ) {
 				// Set the name of the variation if it's a single variation.
 				$variation_data->setName( $product->get_name() );
+			} else {
+				// If there are multiple attributes, the name of the variation is the combination of all attribute values.
+				$variation_name = array();
+
+				/**
+				 * We cannot assign the name of the variation here because it's a dynamic option product.
+				 * Square will automatically set the variation name based on the selected options.
+				 * Our responsibility is only to set the `item_option_values` for the variation.
+				 * 
+				 * Retrieve the options data from the transient. At this point, the options data
+				 * should already be available, as we have already created the necessary options 
+				 * and values in the parent product above.
+				 */
+				foreach ( $variation_items as $attribute_id => $attribute_value ) {
+					// Check if it's a global attribute (taxonomy-based, e.g., "pa_color")
+					if ( taxonomy_exists( $attribute_id ) ) {
+						// Use wc_attribute_label for global attributes
+						$attribute_name = wc_attribute_label( $attribute_id );
+					} else {
+						// For custom attributes, simply use the cleaned-up attribute ID
+						$attribute_name = ucwords( str_replace( '-', ' ', $attribute_id ) );
+					}	
+				}
 			}
 		}
 
