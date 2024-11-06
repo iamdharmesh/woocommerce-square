@@ -360,8 +360,33 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					} else {
 						// For custom attributes, simply use the cleaned-up attribute ID
 						$attribute_name = ucwords( str_replace( '-', ' ', $attribute_id ) );
-					}	
+					}
+	
+					$option_id        = '';
+					$option_value_id  = '';
+					$variation_name[] = $attribute_value;
+	
+					foreach ( $options_data_transient as $option_id_transient => $option_data_transient ) {
+						// Check for the Square ID of $attribute_name.
+						if ( $option_data_transient['name'] === $attribute_name ) {
+							$option_id = $option_id_transient;
+						}
+	
+						// Check for the Square ID of $attribute_value.
+						foreach ( $option_data_transient['value_ids'] as $value_id => $value_name ) {
+							if ( $value_name === $attribute_value ) {
+								$option_value_id = $value_id;
+							}
+						}
+	
+						// Break the loop early if both IDs are found.
+						if ( $option_id && $option_value_id ) {
+							break;
+						}
+					}
 				}
+
+				$variation_data->setItemOptionValues( $variation_item_values );
 			}
 		}
 
