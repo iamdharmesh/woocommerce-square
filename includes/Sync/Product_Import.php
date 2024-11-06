@@ -88,7 +88,7 @@ class Product_Import extends Stepped_Job {
 		$result     = wc_square()->get_api()->retrieve_options_data( $cursor );
 		$new_cursor = isset( $result[2] ) ? $result[2] : null;
 
-		if ( ! empty( $response[2] ) ) {
+		if ( ! empty( $new_cursor ) ) {
 			$this->set_attr( 'fetch_options_data_cursor', $new_cursor );
 		} else {
 			$this->set_attr( 'fetch_options_data_cursor', null );
