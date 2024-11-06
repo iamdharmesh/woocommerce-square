@@ -384,6 +384,14 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							break;
 						}
 					}
+	
+					if ( $option_id && $option_value_id ) {
+						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
+						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
+						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
+	
+						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
+					}
 				}
 
 				$variation_data->setItemOptionValues( $variation_item_values );
