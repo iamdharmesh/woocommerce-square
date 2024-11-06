@@ -173,6 +173,9 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							wc_square()->log( sprintf( 'Resetting the Sync Job. Failed to create option in Square: %s. The system will refetch latest Options from Square.', $e->getMessage() ) );
 							throw $e;
 						}
+					} else {
+						// @todo If name exists, check if all values are present in Square.
+						// @todo If not, create the missing values.
 					}
 				}
 
