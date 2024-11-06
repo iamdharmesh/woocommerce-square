@@ -111,6 +111,19 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					$attribute_name          = $attribute->get_name();
 					$attribute_option_values = $attribute->get_options();
 	
+					// Check if Square already has the option created with the same name.
+					// To do so, we can check if we already have the name in transient,
+					// if yes, use the relative Square ID.
+					$name_exists = false;
+					
+					foreach ( $options_data_transient as $option_id => $option_data_transient ) {
+						if ( $option_data_transient['name'] === $attribute_name ) {
+							$name_exists = true;
+							$options_IDs[] = $option_id;
+							break;
+						}
+					}
+	
 					
 				}
 
