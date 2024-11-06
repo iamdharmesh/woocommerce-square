@@ -332,7 +332,14 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 		 * @see https://github.com/woocommerce/woocommerce-square/issues/570
 		 */
 		if ( 'variation' === $product->get_type() ) {
-			$variation_data->setName( $product->get_name() );
+			$options_data_transient = get_transient( 'wc_square_options_data' );
+			$variation_items        = $product->get_attributes();
+			$variation_item_values  = array();
+
+			if ( 1 === count ( $variation_items ) ) {
+				// Set the name of the variation if it's a single variation.
+				$variation_data->setName( $product->get_name() );
+			}
 		}
 
 		if ( wc_square()->get_settings_handler()->is_inventory_sync_enabled() ) {
