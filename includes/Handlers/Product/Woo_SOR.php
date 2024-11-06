@@ -147,7 +147,21 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						// Set the option values.
 						$option->getItemOptionData()->setValues( $options_value_data );
 
-						
+						// Push option object to Square to create a new one. Used timestamp as idempotency_key.
+						try {
+							$new_option = wc_square()->get_api()->upsert_catalog_object( time(), $option );
+
+							// @todo get the new option ID and save in transient
+							// $options_data_transient[$new_option->getId()] = array(
+							// 	'name' => $attribute_name,
+							// 	'values' => $attribute_option_values,
+							// );
+							// set_transient( 'wc_square_options_data', $options_data_transient, DAY_IN_SECONDS );
+							// $options_IDs[] = $new_option->getId();
+
+						} catch ( \Exception $e ) {
+							
+						}
 					}
 				}
 
