@@ -1705,13 +1705,12 @@ class Manual_Synchronization extends Stepped_Job {
 	 * @throws \Exception
 	 */
 	protected function fetch_options_data() {
-		$cursor = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+		$cursor     = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+		$result     = wc_square()->get_api()->retrieve_options_data( $cursor );
+		$new_cursor = isset( $result[2] ) ? $result[2] : null;
 
-		$result        = wc_square()->get_api()->retrieve_options_data( $cursor );
-		$cursor_exists = isset( $result[2] ) ? $result[2] : null;
-
-		if ( $cursor_exists ) {
-			$this->set_attr( 'fetch_options_data_cursor', $cursor_exists );
+		if ( ! empty( $new_cursor ) ) {
+			$this->set_attr( 'fetch_options_data_cursor', $new_cursor );
 		} else {
 			$this->set_attr( 'fetch_options_data_cursor', null );
 			$this->complete_step( 'fetch_options_data' );

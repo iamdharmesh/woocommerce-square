@@ -84,11 +84,12 @@ class Product_Import extends Stepped_Job {
 	 * @throws \Exception
 	 */
 	protected function fetch_options_data() {
-		$cursor  = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
-		$response = wc_square()->get_api()->retrieve_options_data( $cursor );
+		$cursor     = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+		$result     = wc_square()->get_api()->retrieve_options_data( $cursor );
+		$new_cursor = isset( $result[2] ) ? $result[2] : null;
 
-		if ( isset( $response[2] ) ) {
-			$this->set_attr( 'fetch_options_data_cursor', $response[2] );
+		if ( ! empty( $response[2] ) ) {
+			$this->set_attr( 'fetch_options_data_cursor', $new_cursor );
 		} else {
 			$this->set_attr( 'fetch_options_data_cursor', null );
 			$this->complete_step( 'fetch_options_data' );
