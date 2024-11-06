@@ -135,6 +135,15 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 
 						$options_value_data = array();
 
+						// Loop through the attribute values to create option values.
+						foreach ( $attribute_option_values as $attribute_option_value ) {
+							$option_value = new \Square\Models\CatalogObject('ITEM_OPTION_VAL', '#' . $attribute_name . '_' . $attribute_option_value );
+							$option_value->setItemOptionValueData( new \Square\Models\CatalogItemOptionValue() );
+							$option_value->getItemOptionValueData()->setName( $attribute_option_value );
+
+							$options_value_data[] = $option_value;
+						}
+
 						
 					}
 				}
