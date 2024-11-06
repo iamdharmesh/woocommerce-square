@@ -1645,6 +1645,7 @@ class Manual_Synchronization extends Stepped_Job {
 					'refresh_category_mappings',
 					'query_unmapped_categories',
 					'upsert_categories',
+					'fetch_options_data',
 					'update_matched_products',
 					'search_matched_products',
 					'upsert_new_products',
@@ -1672,6 +1673,26 @@ class Manual_Synchronization extends Stepped_Job {
 		$this->set_attr( 'next_steps', $next_steps );
 	}
 
+	/**
+	 * Fetch the option (attribute) names from Square.
+	 *
+	 * @since x.x.x
+	 *
+	 * @throws \Exception
+	 */
+	protected function fetch_options_data() {
+		$cursor = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+
+		$result        = wc_square()->get_api()->retrieve_options_data( $cursor );
+		$cursor_exists = isset( $result[2] ) ? $result[2] : null;
+
+		if ( $cursor_exists ) {
+			$this->set_attr( 'fetch_options_data_cursor', $cursor_exists );
+		} else {
+			$this->set_attr( 'fetch_options_data_cursor', null );
+			$this->complete_step( 'fetch_options_data' );
+		}
+	}
 
 	/**
 	 * Gets the maximum number of objects to retrieve in a single sync job.
