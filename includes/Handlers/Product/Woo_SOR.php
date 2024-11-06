@@ -144,6 +144,9 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							$options_value_data[] = $option_value;
 						}
 
+						// Set the option values.
+						$option->getItemOptionData()->setValues( $options_value_data );
+
 						
 					}
 				}
