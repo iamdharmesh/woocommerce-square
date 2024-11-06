@@ -85,40 +85,12 @@ class Product_Import extends Stepped_Job {
 	 * @throws \Exception
 	 */
 	protected function fetch_options_data() {
-		$options_data = get_transient( 'wc_square_options_data' );
-		$cursor       = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+		$cursor  = $this->get_attr( 'fetch_options_data_cursor' ) ?: '';
+		$response = wc_square()->get_api()->retrieve_options_data( $cursor );
 
-		if ( ! is_array( $options_data ) ) {
-			$options_data = array();
-		}
-
-		$response = wc_square()->get_api()->list_catalog( $cursor, array( 'ITEM_OPTION' ) );
-
-		if ( ! $response->get_data() instanceof ListCatalogResponse ) {
-			throw new \Exception( 'API response data is invalid' );
-		}
-
-		$objects = $response->get_data()->getObjects() ? $response->get_data()->getObjects() : array();
-
-		foreach ( $objects as $object ) {
-			$options_data[ $object->getId() ]['name']   = $object->getItemOptionData()->getDisplayName();
-			
-			$option_values_object = $object->getItemOptionData()->getValues();
-			$option_values        = array();
-			$option_values_ids    = array();
-
-			foreach ( $option_values_object as $option_value ) {
-				$option_values[] = $option_value->getItemOptionValueData()->getName();
-				$option_values_ids[$option_value->getId()] = $option_value->getItemOptionValueData()->getName();
-			}
-			$options_data[ $object->getId() ]['values'] = $option_values;
-			$options_data[ $object->getId() ]['value_ids'] = $option_values_ids;
-		}
-
-		if ( $response->get_data()->getCursor() ) {
-			$this->set_attr( 'fetch_options_data_cursor', $response->get_data()->getCursor() );
+		if ( isset( $response[2] ) ) {
+			$this->set_attr( 'fetch_options_data_cursor', $response[2] );
 		} else {
-			set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
 			$this->set_attr( 'fetch_options_data_cursor', null );
 			$this->complete_step( 'fetch_options_data' );
 		}
