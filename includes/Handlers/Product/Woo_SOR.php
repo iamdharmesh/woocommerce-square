@@ -169,6 +169,9 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							update_option( 'woocommerce_square_refresh_sync_cycle', true );
 							delete_transient( 'wc_square_options_data' );
 							
+							// Log the error and throw it.
+							wc_square()->log( sprintf( 'Resetting the Sync Job. Failed to create option in Square: %s. The system will refetch latest Options from Square.', $e->getMessage() ) );
+							throw $e;
 						}
 					}
 				}
