@@ -105,7 +105,15 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				// Set the product as a dynamic options product.
 				update_post_meta( $product->get_id(), '_dynamic_options', true );
 				
-				
+				// Loop through the attributes to create options and values at Square.
+				foreach ( $attributes as $attribute_ID => $attribute ) {
+	
+					$attribute_name          = $attribute->get_name();
+					$attribute_option_values = $attribute->get_options();
+	
+					
+				}
+
 			} else {
 				// If the product has only one attribute, it's not a dynamic options product.
 				// So, remove the dynamic options meta.
