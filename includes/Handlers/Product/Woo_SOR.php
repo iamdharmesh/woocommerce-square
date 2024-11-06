@@ -81,7 +81,11 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			$item_data->setReportingCategory( $square_category );
 		}
 
-		$catalog_variations = $item_data->getVariations() ?: array();
+		$attributes      = $product->get_attributes();
+		$catalog_options = $item_data->getItemOptions() ?: array();
+
+		$product_variation_ids = $product->get_children();
+		$catalog_variations    = $item_data->getVariations() ?: array();
 
 		// if dealing with a variable product, try and match the variations
 		if ( $product->is_type( 'variable' ) ) {
