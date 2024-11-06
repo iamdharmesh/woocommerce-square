@@ -160,6 +160,14 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							// $options_IDs[] = $new_option->getId();
 
 						} catch ( \Exception $e ) {
+							/**
+							 * if we encounter an error, mostly it would be because Option or its Value
+							 * already exists in Square. In such case, we need to refetch the latest data
+							 * and restart the Runner Job using `woocommerce_square_refresh_sync_cycle` option.
+							 * This is required to reactivate `fetch_all_options` step to get the latest data.
+							 */							 
+							update_option( 'woocommerce_square_refresh_sync_cycle', true );
+							delete_transient( 'wc_square_options_data' );
 							
 						}
 					}
