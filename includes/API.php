@@ -26,6 +26,7 @@ namespace WooCommerce\Square;
 use WooCommerce\Square\Framework\Api\Base;
 use WooCommerce\Square\API\Requests;
 use WooCommerce\Square\API\Responses;
+use Square\Models\ListCatalogResponse;
 use Square\SquareClient;
 use Square\Environment;
 
