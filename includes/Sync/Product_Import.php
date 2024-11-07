@@ -37,6 +37,11 @@ defined( 'ABSPATH' ) || exit;
  */
 class Product_Import extends Stepped_Job {
 
+	/**
+	 * Product's existing attributes at Woo.
+	 */
+	protected $woo_attributes = array();
+
 
 	protected function assign_next_steps() {
 
@@ -575,6 +580,9 @@ class Product_Import extends Stepped_Job {
 			$data['attributes'] = array();
 			$data['variations'] = array();
 
+			// Get Woo product's existing attributes.
+			$this->woo_attributes = $product ? $product->get_attributes() : array();
+
 			foreach ( $variations as $variation ) {
 
 				// sanity check for valid API data
@@ -734,8 +742,9 @@ class Product_Import extends Stepped_Job {
 		}
 
 		if ( ! $variation_options ) {
-			$attributes[] = array(
-				'name'         => 'Attribute',
+			$attribute_name = ! empty ( reset( $this->woo_attributes ) ) ? reset( $this->woo_attributes )->get_name() : 'Attribute';
+			$attributes[]   = array(
+				'name'         => $attribute_name,
 				'is_variation' => true,
 				'option'       => $variation_data->getName(),
 			);
@@ -818,8 +827,9 @@ class Product_Import extends Stepped_Job {
 	 */
 	protected function extract_attributes_from_square_variations( $variations ) {
 
-		$attributes[] = array(
-			'name'         => 'Attribute',
+		$attribute_name = ! empty ( reset( $this->woo_attributes ) ) ? reset( $this->woo_attributes )->get_name() : 'Attribute';
+		$attributes[]   = array(
+			'name'         => $attribute_name,
 			'visible'      => true,
 			'variation'    => true,
 			'options'      => wp_list_pluck( $variations, 'name' ),
@@ -921,7 +931,6 @@ class Product_Import extends Stepped_Job {
 				$attribute_slug = sanitize_title( $attribute['name'] );
 
 				if ( isset( $attribute['slug'] ) ) {
-
 					$taxonomy       = $this->get_attribute_taxonomy_by_slug( $attribute['slug'] );
 					$attribute_slug = sanitize_title( $attribute['slug'] );
 				}
