@@ -4,7 +4,7 @@ Tags: credit card, square, woocommerce, inventory sync
 Requires at least: 6.5
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.8.2
+Stable tag: 4.8.3
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -71,6 +71,13 @@ If you get stuck, you can ask for help in the [Plugin Forum](https://wordpress.o
 2. The payment gateway settings.
 
 == Changelog ==
+
+= 4.8.3 - 2024-11-11 =
+* Fix – Ensure Square sync works without issues when using cached API responses.
+* Fix - Avoid a potential infinite loop during inventory pull.
+* Tweak - Change the maximum object retrieval limit from 100 to 50 to avoid timeout issues.
+* Dev - Bump WordPress "tested up to" version 6.7.
+* Dev - Bump WordPress minimum supported version to 6.5.
 
 = 4.8.2 - 2024-10-14 =
 * Add - Title, Description, and Gateway ID props to the express payment method.
