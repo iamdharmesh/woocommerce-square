@@ -342,14 +342,10 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 									break;
 								}
 							}
-						}
-	
-						// Break the loop early if both IDs are found.
-						if ( $option_id && $option_value_id ) {
 							break;
 						}
 					}
-	
+
 					if ( $option_id && $option_value_id ) {
 						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
 						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
