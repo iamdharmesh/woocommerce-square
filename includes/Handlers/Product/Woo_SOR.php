@@ -104,10 +104,19 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				update_post_meta( $product->get_id(), '_dynamic_options', true );
 				
 				// Loop through the attributes to create options and values at Square.
-				foreach ( $attributes as $attribute_ID => $attribute ) {
+				foreach ( $attributes as $attribute_id => $attribute ) {
 	
-					$attribute_name          = $attribute->get_name();
-					$attribute_option_values = $attribute->get_options();
+					$attribute_name = $attribute->get_name(); //wow it gives pa_size which saved me!
+					// Check if its a taxonomy-based attribute
+					$attribute_option_values = array();
+					if ( taxonomy_exists( $attribute_id ) ) {
+						$terms = get_terms( $attribute_id, array( 'hide_empty' => false ) );
+						$attribute_option_values = wp_list_pluck( $terms, 'name' );
+					} else {
+						$attribute_option_values = $attribute->get_options();
+					}
+
+					// @todo check if we have all options from the attribute, not only the ones attached to the product.
 	
 					// Check if Square already has the option created with the same name.
 					// To do so, we can check if we already have the name in transient,
