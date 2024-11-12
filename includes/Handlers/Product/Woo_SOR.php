@@ -315,12 +315,17 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				 */
 				foreach ( $variation_items as $attribute_id => $attribute_value ) {
 					// Check if it's a global attribute (taxonomy-based, e.g., "pa_color")
+					$taxonomy_exists = false;
 					if ( taxonomy_exists( $attribute_id ) ) {
 						// Use wc_attribute_label for global attributes
-						$attribute_name = wc_attribute_label( $attribute_id );
+						$attribute_name   = $attribute_id;
+						$variation_name[] = $attribute_value = get_term_by( 'slug', $attribute_value, $attribute_id )->name;
+						$taxonomy_exists  = true;
 					} else {
 						// For custom attributes, simply use the cleaned-up attribute ID
-						$attribute_name = ucwords( str_replace( '-', ' ', $attribute_id ) );
+						$attribute_name   = ucwords( str_replace( '-', ' ', $attribute_id ) ); // what if merchant changes the name?
+						$attribute_id     = $attribute_name;
+						$variation_name[] = $attribute_value;
 					}
 	
 					$option_id        = '';
