@@ -735,7 +735,7 @@ class Product_Import extends Stepped_Job {
 
 			$attributes[] = array(
 				'name'         => $option_name,
-				'slug'         => sanitize_title( $option_name ),
+				'slug'         => str_replace( 'pa_', '', sanitize_title( $option_name ) ),
 				'is_variation' => true,
 				'option'       => $option_matched,
 			);
@@ -811,7 +811,7 @@ class Product_Import extends Stepped_Job {
 			
 			$data_attributes[] = array(
 				'name'         => $option_name,
-				'slug'         => sanitize_title( $option_name ),
+				'slug'         => str_replace( 'pa_', '', sanitize_title( $option_name ) ),
 				'visible'      => true,
 				'variation'    => true,
 				'options'      => $option_values,
@@ -834,7 +834,7 @@ class Product_Import extends Stepped_Job {
 		$attribute_name = ! empty ( reset( $this->woo_attributes ) ) ? reset( $this->woo_attributes )->get_name() : 'Attribute';
 		$attributes[]   = array(
 			'name'         => $attribute_name,
-			'slug'         => sanitize_title( $attribute_name ),
+			'slug'         => str_replace( 'pa_', '', sanitize_title( $attribute_name ) ),
 			'visible'      => true,
 			'variation'    => true,
 			'options'      => wp_list_pluck( $variations, 'name' ),
