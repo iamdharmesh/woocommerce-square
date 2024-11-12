@@ -352,6 +352,36 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
 	
 						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
+					} else {
+
+						if ( $taxonomy_exists ) {
+							// Get all attribute terms from Woo taxonomy.
+							$attribute_option_values = get_terms( $attribute_id, array( 'hide_empty' => false ) );
+							$attribute_option_values = wp_list_pluck( $attribute_option_values, 'name' );
+						} else {
+							// Get all attribute values from the parent product.
+							$parent_product          = wc_get_product( $product->get_parent_id() );
+							$attribute_option_values = $parent_product->get_attribute( $attribute_id );
+							$attribute_option_values = array_map( 'trim', explode( '|', $attribute_option_values ) );
+						}
+
+						$option = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
+						$option_id = $option->getId();
+
+						// Get the Square ID of the attribute value.
+						$updated_option_values = $option->getItemOptionData()->getValues();
+						foreach ( $updated_option_values as $option_value ) {
+							if ( $option_value->getItemOptionValueData()->getName() === $attribute_value ) {
+								$option_value_id = $option_value->getId();
+								break;
+							}
+						}
+
+						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
+						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
+						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
+	
+						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
 					}
 				}
 
