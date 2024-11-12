@@ -107,7 +107,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				foreach ( $attributes as $attribute_id => $attribute ) {
 	
 					$attribute_name = $attribute->get_name(); //wow it gives pa_size which saved me!
-					// Check if its a taxonomy-based attribute
+					// Check if its a taxonomy-based attribute.
 					$attribute_option_values = array();
 					if ( taxonomy_exists( $attribute_id ) ) {
 						$terms = get_terms( $attribute_id, array( 'hide_empty' => false ) );
@@ -121,69 +121,20 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					// Check if Square already has the option created with the same name.
 					// To do so, we can check if we already have the name in transient,
 					// if yes, use the relative Square ID.
-					$name_exists = false;
-					
-					foreach ( $options_data_transient as $option_id => $option_data_transient ) {
+					$option_id = false;
+					foreach ( $options_data_transient as $transient_option_id => $option_data_transient ) {
 						if ( $option_data_transient['name'] === $attribute_name ) {
-							$name_exists = true;
-							$options_IDs[] = $option_id;
+							$option_id = $transient_option_id;
 							break;
 						}
 					}
 	
 					// If name does not exist, create a new option in Square.
-					if ( ! $name_exists ) {
-
-						// Initialize the option object with a temp ID prefixed with #.
-						$option = new \Square\Models\CatalogObject( 'ITEM_OPTION', '#' . $attribute_ID );
-						$option->setItemOptionData( new \Square\Models\CatalogItemOption() );
-						$option->getItemOptionData()->setName( $attribute_name );
-						$option->getItemOptionData()->setDisplayName( $attribute_name );
-
-						$options_value_data = array();
-
-						// Loop through the attribute values to create option values.
-						foreach ( $attribute_option_values as $attribute_option_value ) {
-							$option_value = new \Square\Models\CatalogObject('ITEM_OPTION_VAL', '#' . $attribute_name . '_' . $attribute_option_value );
-							$option_value->setItemOptionValueData( new \Square\Models\CatalogItemOptionValue() );
-							$option_value->getItemOptionValueData()->setName( $attribute_option_value );
-
-							$options_value_data[] = $option_value;
-						}
-
-						// Set the option values.
-						$option->getItemOptionData()->setValues( $options_value_data );
-
-						// Push option object to Square to create a new one. Used timestamp as idempotency_key.
-						try {
-							$new_option = wc_square()->get_api()->upsert_catalog_object( time(), $option );
-
-							// @todo get the new option ID and save in transient
-							// $options_data_transient[$new_option->getId()] = array(
-							// 	'name' => $attribute_name,
-							// 	'values' => $attribute_option_values,
-							// );
-							// set_transient( 'wc_square_options_data', $options_data_transient, DAY_IN_SECONDS );
-							// $options_IDs[] = $new_option->getId();
-
-						} catch ( \Exception $e ) {
-							/**
-							 * if we encounter an error, mostly it would be because Option or its Value
-							 * already exists in Square. In such case, we need to refetch the latest data
-							 * and restart the Runner Job using `woocommerce_square_refresh_sync_cycle` option.
-							 * This is required to reactivate `fetch_all_options` step to get the latest data.
-							 */							 
-							update_option( 'woocommerce_square_refresh_sync_cycle', true );
-							delete_transient( 'wc_square_options_data' );
-							
-							// Log the error and throw it.
-							wc_square()->log( sprintf( 'Resetting the Sync Job. Failed to create option in Square: %s. The system will refetch latest Options from Square.', $e->getMessage() ) );
-							throw $e;
-						}
-					} else {
-						// @todo If name exists, check if all values are present in Square.
-						// @todo If not, create the missing values.
-					}
+					// If name exists, check if all values are present in Square.
+					// If not, create the missing values.
+					// @todo Prevent re-calls for each iteration, store the data in a transient?
+					$option = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
+					$options_ids[] = $option->getId();
 				}
 
 				// Set the item_option_id for each option to the product.
