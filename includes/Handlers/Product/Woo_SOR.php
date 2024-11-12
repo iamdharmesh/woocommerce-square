@@ -82,7 +82,6 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 		}
 
 		$attributes      = $product->get_attributes();
-		$catalog_options = $item_data->getItemOptions() ?: array();
 
 		$product_variation_ids = $product->get_children();
 		$catalog_variations    = $item_data->getVariations() ?: array();
