@@ -793,15 +793,18 @@ class Product_Import extends Stepped_Job {
 				$response             = wc_square()->get_api()->retrieve_catalog_object( $option_id );
 				$option_name          = $response->get_data()->getObject()->getItemOptionData()->getDisplayName();
 				$option_values_object = $response->get_data()->getObject()->getItemOptionData()->getValues();
+				$option_value_ids     = array();
 				$option_values        = array();
 
 				foreach ( $option_values_object as $option_value ) {
-					$option_values[] = $option_value->getItemOptionValueData()->getName();
+					$option_values[]    = $option_value->getItemOptionValueData()->getName();
+					$option_value_ids[] = $option_value->getId();
 				}
 
 				$options_data[$option_id] = array(
 					'name'   => $option_name,
 					'values' => $option_values,
+					'value_ids' => array_combine( $option_value_ids, $option_values ),
 				);
 				set_transient( 'wc_square_options_data', $options_data, DAY_IN_SECONDS );
 			}
