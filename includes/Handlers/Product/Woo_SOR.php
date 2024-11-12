@@ -328,11 +328,10 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						$variation_name[] = $attribute_value;
 					}
 	
-					$option_id        = '';
-					$option_value_id  = '';
-					$variation_name[] = $attribute_value;
-	
 					foreach ( $options_data_transient as $option_id_transient => $option_data_transient ) {
+						$option_id       = '';
+						$option_value_id = '';
+
 						// Check for the Square ID of $attribute_name.
 						if ( $option_data_transient['name'] === $attribute_name ) {
 							$option_id = $option_id_transient;
