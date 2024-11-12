@@ -95,8 +95,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			 * has multiple attributes OR options already exists in Square.
 			 */
 			if (
-				( is_array( $catalog_options ) && count( $catalog_options ) > 0 )
-				|| count ( $attributes ) > 1
+				count ( $attributes ) > 1
 			) {
 				$options_IDs            = array();
 				$options_data_transient = get_transient( 'wc_square_options_data' );
