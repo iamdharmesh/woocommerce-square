@@ -637,7 +637,7 @@ class API extends Base {
 				$option_values[] = $option_value->getItemOptionValueData()->getName();
 				$option_values_ids[$option_value->getId()] = $option_value->getItemOptionValueData()->getName();
 			}
-			$options_data[ $object->getId() ]['values'] = $option_values;
+			$options_data[ $object->getId() ]['values']    = $option_values;
 			$options_data[ $object->getId() ]['value_ids'] = $option_values_ids;
 		}
 
@@ -648,6 +648,107 @@ class API extends Base {
 
 		return array( $response, $options_data, $cursor );
 	}
+
+	/**
+	 * Create options and values in Square.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $option_id Option ID.
+	 * @param string $attribute_name Attribute name.
+	 * @param array  $attribute_option_values Attribute option values.
+	 * 
+	 * @return \Square\Models\CatalogObject
+	 */
+	public function create_options_and_values ( $option_id = false, $attribute_name = '', $attribute_option_values = array() ) {
+		$options_value_data = array();
+
+		if ( $option_id ) {
+			$response = $this->retrieve_catalog_object( $option_id );
+			$option = $response->get_data()->getObject();
+			
+			// Filter out the existing option values from the attribute values.
+			$square_existing_option_objects = $option->getItemOptionData()->getValues();
+			$options_value_data = $square_existing_option_objects;
+
+			$square_existing_option_values = array();
+			foreach ( $square_existing_option_objects as $option_object ) {
+				$square_existing_option_values[] = $option_object->getItemOptionValueData()->getName();
+			}
+			$attribute_option_values = array_diff( $attribute_option_values, $square_existing_option_values );						
+		} else {
+			// Initialize the option object with a temp ID prefixed with #.
+			$option = new \Square\Models\CatalogObject( 'ITEM_OPTION', '' );
+
+			if ( $attribute_name ) {
+				$option->setId( $option_id ? $option_id : '#' . $attribute_name );
+			}
+
+			$option->setItemOptionData( new \Square\Models\CatalogItemOption() );
+			$option->getItemOptionData()->setName( $attribute_name );
+			$option->getItemOptionData()->setDisplayName( $attribute_name );
+		}
+
+		// Loop through the attribute values to create option values.
+		foreach ( $attribute_option_values as $attribute_option_value ) {
+			$option_value = new \Square\Models\CatalogObject('ITEM_OPTION_VAL', '#' . $attribute_name . '_' . $attribute_option_value );
+			$option_value->setItemOptionValueData( new \Square\Models\CatalogItemOptionValue() );
+			$option_value->getItemOptionValueData()->setName( $attribute_option_value );
+
+			$options_value_data[] = $option_value;
+		}
+
+		// Set the option values.
+		$option->getItemOptionData()->setValues( $options_value_data );
+
+		// Push option object to Square to create a new one. Used timestamp as idempotency_key.
+		try {
+			$new_option = $this->upsert_catalog_object( time(), $option );
+
+			$id_mappings = $new_option->get_data()->getIdMappings();
+
+			if ( isset( $id_mappings[0] ) ) {
+				$option_id = $id_mappings[0]->getObjectId();
+			}
+
+			$response   = $this->retrieve_catalog_object( $option_id );
+			$option     = $response->get_data()->getObject();
+			
+			$option_values_object = $option->getItemOptionData()->getValues();
+			$option_value_ids = array();
+			$option_values = array();
+
+			foreach ( $option_values_object as $option_value ) {
+				$option_value_ids[] = $option_value->getId();
+				$option_values[]    = $option_value->getItemOptionValueData()->getName();
+			}
+
+			$options_data_transient = get_transient( 'wc_square_options_data' );
+			$options_data_transient[$option_id] = array(
+				'name'   => $attribute_name,
+				'values' => $option_values,
+				'value_ids' => array_combine( $option_value_ids, $option_values ),
+			);
+			set_transient( 'wc_square_options_data', $options_data_transient, DAY_IN_SECONDS );
+
+		} catch ( \Exception $e ) {
+			/**
+			 * if we encounter an error, mostly it would be because Option or its Value
+			 * already exists in Square. In such case, we need to refetch the latest data
+			 * and restart the Runner Job using `woocommerce_square_refresh_sync_cycle` option.
+			 * This is required to reactivate `fetch_all_options` step to get the latest data.
+			 */							 
+			update_option( 'woocommerce_square_refresh_sync_cycle', true );
+			delete_transient( 'wc_square_options_data' );
+			
+			// Log the error and throw it.
+			wc_square()->log( sprintf( 'Resetting the Sync Job. Failed to create option in Square: %s. The system will refetch latest Options from Square.', $e->getMessage() ) );
+			throw $e;
+		}
+
+		return $option;
+	}
+
 
 	/** Locations methods *********************************************************************************************/
 
