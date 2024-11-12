@@ -335,12 +335,12 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						// Check for the Square ID of $attribute_name.
 						if ( $option_data_transient['name'] === $attribute_id ) { // @TODO: If merchant changes the name of the attribute, this will create a new item at Square. Think of a way to handle this.
 							$option_id = $option_id_transient;
-						}
-	
-						// Check for the Square ID of $attribute_value.
-						foreach ( $option_data_transient['value_ids'] as $value_id => $value_name ) {
-							if ( $value_name === $attribute_value ) {
-								$option_value_id = $value_id;
+							// Check for the Square ID of $attribute_value.
+							foreach ( $option_data_transient['value_ids'] as $value_id => $value_name ) {
+								if ( $value_name === $attribute_value ) {
+									$option_value_id = $value_id;
+									break;
+								}
 							}
 						}
 	
