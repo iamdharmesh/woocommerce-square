@@ -97,7 +97,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			if (
 				count ( $attributes ) > 1
 			) {
-				$options_IDs            = array();
+				$options_ids            = array();
 				$options_data_transient = get_transient( 'wc_square_options_data' );
 
 				// Set the product as a dynamic options product.
@@ -180,7 +180,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				// Set the item_option_id for each option to the product.
 				$product_options = array();
 
-				foreach ( $options_IDs as $option_id ) {
+				foreach ( $options_ids as $option_id ) {
 					$CatalogItemOptionForItem = new \Square\Models\CatalogItemOptionForItem();
 					$CatalogItemOptionForItem->setItemOptionId( $option_id );
 					$product_options[] = $CatalogItemOptionForItem;
