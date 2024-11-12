@@ -745,6 +745,7 @@ class Product_Import extends Stepped_Job {
 			$attribute_name = ! empty ( reset( $this->woo_attributes ) ) ? reset( $this->woo_attributes )->get_name() : 'Attribute';
 			$attributes[]   = array(
 				'name'         => $attribute_name,
+				'slug'	       => sanitize_title( $attribute_name ),
 				'is_variation' => true,
 				'option'       => $variation_data->getName(),
 			);
