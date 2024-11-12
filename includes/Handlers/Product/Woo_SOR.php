@@ -151,6 +151,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				// If the product has only one attribute, it's not a dynamic options product.
 				// So, remove the dynamic options meta.
 				delete_post_meta( $product->get_id(), '_dynamic_options' );
+				$catalog_object->getItemData()->setItemOptions( null );
 			}
 
 			if ( is_array( $catalog_variations ) ) {
