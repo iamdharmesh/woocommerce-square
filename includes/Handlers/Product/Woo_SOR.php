@@ -223,6 +223,8 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			}
 
 			$catalog_variations = array( self::update_catalog_variation( $variation_object, $product ) );
+
+			$catalog_object->getItemData()->setItemOptions( null );
 		}
 
 		$item_data->setVariations( array_values( $catalog_variations ) );
