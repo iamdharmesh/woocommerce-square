@@ -81,7 +81,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			$item_data->setReportingCategory( $square_category );
 		}
 
-		$attributes      = $product->get_attributes();
+		$attributes = $product->get_attributes();
 
 		$product_variation_ids = $product->get_children();
 		$catalog_variations    = $item_data->getVariations() ?: array();
@@ -95,29 +95,27 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			 * has multiple attributes OR options already exists in Square.
 			 */
 			if (
-				count ( $attributes ) > 1
+				count( $attributes ) > 1
 			) {
 				$options_ids            = array();
 				$options_data_transient = get_transient( 'wc_square_options_data' );
 
 				// Set the product as a dynamic options product.
 				update_post_meta( $product->get_id(), '_dynamic_options', true );
-				
+
 				// Loop through the attributes to create options and values at Square.
 				foreach ( $attributes as $attribute_id => $attribute ) {
-	
+
 					$attribute_name = $attribute->get_name(); //wow it gives pa_size which saved me!
 					// Check if its a taxonomy-based attribute.
 					$attribute_option_values = array();
 					if ( taxonomy_exists( $attribute_id ) ) {
-						$terms = get_terms( $attribute_id, array( 'hide_empty' => false ) );
+						$terms                   = get_terms( $attribute_id, array( 'hide_empty' => false ) );
 						$attribute_option_values = wp_list_pluck( $terms, 'name' );
 					} else {
 						$attribute_option_values = $attribute->get_options();
 					}
 
-					// @todo check if we have all options from the attribute, not only the ones attached to the product.
-	
 					// Check if Square already has the option created with the same name.
 					// To do so, we can check if we already have the name in transient,
 					// if yes, use the relative Square ID.
@@ -128,12 +126,12 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							break;
 						}
 					}
-	
+
 					// If name does not exist, create a new option in Square.
 					// If name exists, check if all values are present in Square.
 					// If not, create the missing values.
 					// @todo Prevent re-calls for each iteration, store the data in a transient?
-					$option = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
+					$option        = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
 					$options_ids[] = $option->getId();
 				}
 
@@ -297,7 +295,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 			$variation_items        = $product->get_attributes();
 			$variation_item_values  = array();
 
-			if ( 1 === count ( $variation_items ) ) {
+			if ( 1 === count( $variation_items ) ) {
 				// Set the name of the variation if it's a single variation.
 				$variation_data->setName( reset( $variation_items ) );
 			} else {
@@ -308,9 +306,9 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				 * We cannot assign the name of the variation here because it's a dynamic option product.
 				 * Square will automatically set the variation name based on the selected options.
 				 * Our responsibility is only to set the `item_option_values` for the variation.
-				 * 
+				 *
 				 * Retrieve the options data from the transient. At this point, the options data
-				 * should already be available, as we have already created the necessary options 
+				 * should already be available, as we have already created the necessary options
 				 * and values in the parent product above.
 				 */
 				foreach ( $variation_items as $attribute_id => $attribute_value ) {
@@ -327,7 +325,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						$attribute_id     = $attribute_name;
 						$variation_name[] = $attribute_value;
 					}
-	
+
 					foreach ( $options_data_transient as $option_id_transient => $option_data_transient ) {
 						$option_id       = '';
 						$option_value_id = '';
@@ -350,7 +348,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
 						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
 						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
-	
+
 						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
 					} else {
 
@@ -365,7 +363,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							$attribute_option_values = array_map( 'trim', explode( '|', $attribute_option_values ) );
 						}
 
-						$option = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
+						$option    = wc_square()->get_api()->create_options_and_values( $option_id, $attribute_name, $attribute_option_values );
 						$option_id = $option->getId();
 
 						// Get the Square ID of the attribute value.
@@ -380,7 +378,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
 						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
 						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
-	
+
 						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
 					}
 				}
@@ -471,6 +469,4 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 
 		return $catalog_object;
 	}
-
-
 }

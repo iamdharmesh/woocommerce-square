@@ -29,7 +29,7 @@ use Square\Models\BatchRetrieveCatalogObjectsResponse;
 use Square\Models\CatalogObject;
 use Square\Models\SearchCatalogObjectsResponse;
 use Square\Models\CatalogInfoResponse;
-use \Square\ApiHelper;
+use Square\ApiHelper;
 use WooCommerce\Square\Handlers\Category;
 use WooCommerce\Square\Handlers\Product;
 
@@ -70,7 +70,7 @@ class Manual_Synchronization extends Stepped_Job {
 			$this->set_attr( 'completed_steps', array() );
 
 			update_option( 'woocommerce_square_refresh_sync_cycle', intval( $refresh_sync_cycle ) + 1 );
-		} else { 
+		} else {
 			// Stop retrying after 3 attempts.
 			delete_option( 'woocommerce_square_refresh_sync_cycle' );
 		}
@@ -1243,7 +1243,7 @@ class Manual_Synchronization extends Stepped_Job {
 				$woo_product_variations    = $maybe_parent_product->get_children();
 				$square_product_variations = $object->getItemData()->getVariations();
 				$square_variation_ids      = array_map(
-					function( $square_product_variation ) {
+					function ( $square_product_variation ) {
 						return wc_get_product_id_by_sku( $square_product_variation->getItemVariationData()->getSku() );
 					},
 					$square_product_variations
