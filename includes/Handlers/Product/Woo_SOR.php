@@ -84,7 +84,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 		$attributes = $product->get_attributes();
 
 		$product_variation_ids = $product->get_children();
-		$catalog_variations    = $item_data->getVariations() ?: array();
+		$catalog_variations    = $item_data->getVariations() ? $item_data->getVariations() : array();
 
 		// if dealing with a variable product, try and match the variations
 		if ( $product->is_type( 'variable' ) ) {
@@ -110,7 +110,7 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					// Check if its a taxonomy-based attribute.
 					$attribute_option_values = array();
 					if ( taxonomy_exists( $attribute_id ) ) {
-						$terms                   = get_terms( $attribute_id, array( 'hide_empty' => false ) );
+						$terms                   = get_terms( $attribute_id );
 						$attribute_option_values = wp_list_pluck( $terms, 'name' );
 					} else {
 						$attribute_option_values = $attribute->get_options();
@@ -139,9 +139,9 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 				$product_options = array();
 
 				foreach ( $options_ids as $option_id ) {
-					$CatalogItemOptionForItem = new \Square\Models\CatalogItemOptionForItem();
-					$CatalogItemOptionForItem->setItemOptionId( $option_id );
-					$product_options[] = $CatalogItemOptionForItem;
+					$item_option = new \Square\Models\CatalogItemOptionForItem();
+					$item_option->setItemOptionId( $option_id );
+					$product_options[] = $item_option;
 				}
 
 				$catalog_object->getItemData()->setItemOptions( $product_options );
@@ -345,16 +345,16 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 					}
 
 					if ( $option_id && $option_value_id ) {
-						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
-						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
-						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
+						$option_value_object = new \Square\Models\CatalogItemOptionValueForItemVariation();
+						$option_value_object->setItemOptionId( $option_id );
+						$option_value_object->setItemOptionValueId( $option_value_id );
 
-						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
+						$variation_item_values[] = $option_value_object;
 					} else {
 
 						if ( $taxonomy_exists ) {
 							// Get all attribute terms from Woo taxonomy.
-							$attribute_option_values = get_terms( $attribute_id, array( 'hide_empty' => false ) );
+							$attribute_option_values = get_terms( $attribute_id );
 							$attribute_option_values = wp_list_pluck( $attribute_option_values, 'name' );
 						} else {
 							// Get all attribute values from the parent product.
@@ -375,11 +375,11 @@ class Woo_SOR extends \WooCommerce\Square\Handlers\Product {
 							}
 						}
 
-						$CatalogItemOptionValueForItemVariation = new \Square\Models\CatalogItemOptionValueForItemVariation();
-						$CatalogItemOptionValueForItemVariation->setItemOptionId( $option_id );
-						$CatalogItemOptionValueForItemVariation->setItemOptionValueId( $option_value_id );
+						$option_value_object = new \Square\Models\CatalogItemOptionValueForItemVariation();
+						$option_value_object->setItemOptionId( $option_id );
+						$option_value_object->setItemOptionValueId( $option_value_id );
 
-						$variation_item_values[] = $CatalogItemOptionValueForItemVariation;
+						$variation_item_values[] = $option_value_object;
 					}
 				}
 
