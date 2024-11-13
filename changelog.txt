@@ -1,5 +1,12 @@
 *** WooCommerce Square Changelog ***
 
+= 4.8.3 - 2024-11-11 =
+* Fix – Ensure Square sync works without issues when using cached API responses.
+* Fix - Avoid a potential infinite loop during inventory pull.
+* Tweak - Change the maximum object retrieval limit from 100 to 50 to avoid timeout issues.
+* Dev - Bump WordPress "tested up to" version 6.7.
+* Dev - Bump WordPress minimum supported version to 6.5.
+
 = 4.8.2 - 2024-10-14 =
 * Add - Title, Description, and Gateway ID props to the express payment method.
 * Dev - Bump WooCommerce "tested up to" version 9.4.
