@@ -135,7 +135,7 @@ test( 'Gift card recipient email', async ( { page } ) => {
 	await expect( await page.locator( '#template_container' ).getByText( 'We look forward to seeing you soon at http://localhost:8889' ) ).toBeVisible();
 } );
 
-test( 'Reload Gift Card', async ( { page } ) => {
+test( 'Reload Gift Card @giftcard', async ( { page } ) => {
 	if ( ! process.env.PURCHASED_GAN ) {
 		test.skip();
 	}

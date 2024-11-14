@@ -22,7 +22,7 @@ import {
 } from '../utils/helper';
 const iPhone = devices['iPhone 14 Pro Max'];
 
-test.describe('Pre-Orders Tests', () => {
+test.describe('Pre-Orders Tests @general', () => {
 	test.slow();
 
 	test.beforeAll('Setup', async () => {
@@ -149,7 +149,7 @@ test.describe('Pre-Orders Tests', () => {
 		).toEqual('wc-processing');
 	});
 
-	test('[Upfront Charge] Square Cash App Pay should work with Pre-Orders', async ({
+	test('[Upfront Charge] Square Cash App Pay should work with Pre-Orders @cashapp', async ({
 		browser,
 		page: adminPage,
 	}) => {

@@ -15,7 +15,7 @@ import {
 import dummy from '../dummy-data';
 const iPhone = devices['iPhone 14 Pro Max'];
 
-test.describe('Cash App Pay - Gift Card Product Tests', () => {
+test.describe('Cash App Pay - Gift Card Product Tests @cashapp @giftcard', () => {
 	const isBlock = false;
 	test.beforeAll( 'Setup', async ( { baseURL } ) => {
 		const browser = await chromium.launch();

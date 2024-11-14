@@ -14,7 +14,7 @@ import {
 } from '../utils/helper';
 const iPhone = devices['iPhone 14 Pro Max'];
 
-test.describe('Cash App Pay - Gift Card Tests', () => {
+test.describe('Cash App Pay - Gift Card Tests @cashapp @giftcard', () => {
 	const isBlock = false;
 	test.beforeAll('Setup', async ({ baseURL }) => {
 		const browser = await chromium.launch();

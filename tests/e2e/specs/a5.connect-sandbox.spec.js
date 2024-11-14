@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { saveSquareSettings } from '../utils/helper';
 
-test( 'Connect a Square account', async ( { page } ) => {
+test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( { page } ) => {
 	await page.goto( '/wp-admin/admin.php?page=wc-settings&tab=square' );
 
 	await new Promise( ( resolve ) => setTimeout( resolve, 1000 ) );
