@@ -63,7 +63,7 @@ jobs:
       - name: Run E2E tests
         id: square_e2e_tests
         if: ${{ github.event_name == 'pull_request' }}
-        run: npm run test:e2e
+        run: npm run test:e2e -- --grep ${{ matrix.type }}
 
       - name: Remove existing labels
         uses: actions/github-script@v6
