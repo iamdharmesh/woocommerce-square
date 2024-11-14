@@ -1,7 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { saveSquareSettings } from '../utils/helper';
+import {
+	saveCashAppPaySettings,
+	savePaymentGatewaySettings,
+	saveSquareSettings,
+} from '../utils/helper';
 
-test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( { page } ) => {
+test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( {
+	page,
+} ) => {
 	await page.goto( '/wp-admin/admin.php?page=wc-settings&tab=square' );
 
 	await new Promise( ( resolve ) => setTimeout( resolve, 1000 ) );
@@ -19,7 +25,9 @@ test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( { pa
 
 	await saveSquareSettings( page );
 
-	await expect( await page.getByTestId( 'business-location-field' ) ).toBeVisible();
+	await expect(
+		await page.getByTestId( 'business-location-field' )
+	).toBeVisible();
 
 	await page
 		.getByTestId( 'business-location-field' )
@@ -31,5 +39,31 @@ test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( { pa
 
 	await saveSquareSettings( page );
 
-	await expect( await page.getByTestId( 'sync-settings-field' ) ).toHaveValue( 'woocommerce' );
+	await expect( await page.getByTestId( 'sync-settings-field' ) ).toHaveValue(
+		'woocommerce'
+	);
+} );
+
+test( 'Setup Payment Gateways @general @cashapp @giftcard @sync', async ( {
+	page,
+} ) => {
+	// Enable Tokenization and digital wallet.
+	await page.goto(
+		'/wp-admin/admin.php?page=wc-settings&tab=checkout&section=square_credit_card'
+	);
+	await page.getByTestId( 'credit-card-tokenization-field' ).check();
+	await page.getByTestId( 'digital-wallet-gateway-toggle-field' ).check();
+	await savePaymentGatewaySettings( page );
+
+	// Enable Gift Card.
+	await page.goto(
+		'/wp-admin/admin.php?page=wc-settings&tab=checkout&section=gift_cards_pay'
+	);
+	await page.getByTestId( 'gift-card-gateway-toggle-field' ).check();
+	await savePaymentGatewaySettings( page );
+
+	// Enable Cash App.
+	await saveCashAppPaySettings( page, {
+		enabled: true,
+	} );
 } );

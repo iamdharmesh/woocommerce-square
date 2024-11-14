@@ -9,6 +9,7 @@ import {
 	gotoOrderEditPage,
 	placeCashAppPayOrder,
 	saveCashAppPaySettings,
+	savePaymentGatewaySettings,
 	selectPaymentMethod,
 	visitCheckout,
 } from '../utils/helper';
@@ -37,6 +38,12 @@ test.describe('Cash App Pay - Gift Card Tests @cashapp @giftcard', () => {
 		await saveCashAppPaySettings(page, {
 			transactionType: 'charge',
 		});
+
+		await page.goto(
+			'/wp-admin/admin.php?page=wc-settings&tab=checkout&section=gift_cards_pay'
+		);	
+		await page.getByTestId( 'gift-card-gateway-toggle-field' ).check();
+		await savePaymentGatewaySettings( page );
 
 		await clearCart(page);
 		await browser.close();
