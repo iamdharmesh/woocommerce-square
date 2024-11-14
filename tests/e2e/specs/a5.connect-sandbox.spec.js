@@ -31,6 +31,5 @@ test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( { pa
 
 	await saveSquareSettings( page );
 
-	await page.reload();
 	await expect( await page.getByTestId( 'sync-settings-field' ) ).toHaveValue( 'woocommerce' );
 } );
