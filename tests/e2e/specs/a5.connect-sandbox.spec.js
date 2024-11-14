@@ -8,6 +8,7 @@ import {
 test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( {
 	page,
 } ) => {
+	await page.goto( '/wp-admin/' );
 	await page.goto( '/wp-admin/admin.php?page=wc-settings&tab=square' );
 
 	await new Promise( ( resolve ) => setTimeout( resolve, 1000 ) );
