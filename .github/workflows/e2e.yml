@@ -12,6 +12,9 @@ jobs:
   e2e:
     if: "${{ ( github.event_name == 'pull_request' ) ||  github.event_name == 'push' }}"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: [ '@general', '@cashapp', '@sync', '@giftcard' ]
     env:
       WP_ADMIN_USERNAME: ${{ secrets.WP_ADMIN_USERNAME }}
       WP_ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
@@ -21,6 +24,7 @@ jobs:
       GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
     permissions:
       pull-requests: write
+    name: E2E tests (${{ matrix.type }})
     steps:
       - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
@@ -59,7 +63,7 @@ jobs:
       - name: Run E2E tests
         id: square_e2e_tests
         if: ${{ github.event_name == 'pull_request' }}
-        run: npm run test:e2e
+        run: npm run test:e2e -- --grep ${{ matrix.type }}
 
       - name: Remove existing labels
         uses: actions/github-script@v6
@@ -112,7 +116,7 @@ jobs:
 
       - name: Run E2E Smoke Test
         if: ${{ github.event_name == 'push' }}
-        run: npm run test:e2e
+        run: npm run test:e2e -- --grep ${{ matrix.type }}
 
       - uses: actions/upload-artifact@v3
         if: always()
