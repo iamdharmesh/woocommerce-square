@@ -27,3 +27,13 @@ To execute the tests, use the following commands:
 
 3. Run tests for a specific group:
 `npm run test:e2e -- --grep @giftcard`
+
+### Test Groups:
+E2E tests are organized into groups using [tags](https://playwright.dev/docs/test-annotations#tag-tests). This allows each group of tests to execute in parallel within the GitHub Actions workflow.
+
+Currently, there are 4 test groups. **Ensure that each test includes one of the tags below in its title to ensure proper execution in GitHub Actions.**
+
+- **`@general`**: Covers overall generic tests, credit card, and digital wallet functionality.
+- **`@giftcard`**: Contains tests for the gift card functionality.
+- **`@cashapp`**: Contains tests for the Cash App Pay payment gateway.
+- **`@sync`**: Tests related to product synchronization.
