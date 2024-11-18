@@ -5,9 +5,7 @@ import {
 	saveSquareSettings,
 } from '../utils/helper';
 
-test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( {
-	page,
-} ) => {
+const ConnectSquareAccount = async ( page ) => {
 	await page.goto( '/wp-admin/' );
 	await page.goto( '/wp-admin/admin.php?page=wc-settings&tab=square' );
 
@@ -43,9 +41,19 @@ test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( {
 	await expect( await page.getByTestId( 'sync-settings-field' ) ).toHaveValue(
 		'woocommerce'
 	);
+};
+
+test( 'Connect a Square account @general @cashapp @giftcard @sync', async ( {
+	page,
+} ) => {
+	await ConnectSquareAccount( page );
 } );
 
-test( 'Setup Payment Gateways @general @cashapp @giftcard @sync', async ( {
+test( 'Connect a Square account @general', async ( { page } ) => {
+	await ConnectSquareAccount( page );
+} );
+
+test( 'Setup Payment Gateways @cashapp @giftcard @sync', async ( {
 	page,
 } ) => {
 	// Enable Tokenization and digital wallet.
