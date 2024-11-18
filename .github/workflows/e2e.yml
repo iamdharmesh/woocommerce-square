@@ -71,7 +71,7 @@ jobs:
 
       - name: Run E2E tests (General)
         id: square_e2e_tests_general
-        if: ${{ github.event_name == 'push' && matrix.type == '@general' }}
+        if: ${{ github.event_name == 'pull_request' && matrix.type == '@general' }}
         run: npm run test:e2e -- --grep-invert "@cashapp|@sync|@giftcard"
 
       - name: Remove existing labels
