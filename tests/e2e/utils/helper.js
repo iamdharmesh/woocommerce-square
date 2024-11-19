@@ -45,7 +45,20 @@ export async function clearCart( page ) {
 
 export async function visitCheckout( page, isBlock = true ) {
 	if ( isBlock ) {
-		await page.goto( '/checkout' );
+		await page.goto( '/checkout', { waitUntil: 'networkidle' } );
+		if (
+			await page
+				.locator(
+					'span[aria-label="Use another payment method"][aria-expanded="false"]'
+				)
+				.isVisible()
+		) {
+			await page
+				.locator(
+					'span[aria-label="Use another payment method"][aria-expanded="false"]'
+				)
+				.click();
+		}
 	} else {
 		await page.goto( '/checkout-old' );
 	}
