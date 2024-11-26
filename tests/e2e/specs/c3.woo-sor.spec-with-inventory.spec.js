@@ -85,7 +85,7 @@ test( 'OnePlus 8 pushed to Square with inventory', async ( { page } ) => {
 	const { name, variations } = extractCatalogInfo( catalogData.objects[0] );
 
 	expect( name ).toEqual( 'OnePlus 8' );
-	expect( variations[ 0 ].sku ).toEqual( 'oneplus-8' ); 
+	expect( variations[ 0 ].sku ).toEqual( 'oneplus-8' );
 	expect( variations[ 0 ].price ).toEqual( 29900 );
 
 	let inventory = await retrieveInventoryCount( variations[ 0 ].id );
