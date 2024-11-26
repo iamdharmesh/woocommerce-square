@@ -675,6 +675,9 @@ class Manual_Synchronization extends Stepped_Job {
 			}
 
 			$this->set_attr( 'in_progress_search_matched_products', $in_progress );
+		} else {
+			// No products to update, clear the in progress data.
+			$this->set_attr( 'in_progress_search_matched_products', null );
 		}
 
 		if ( ! $catalog_processed && ! empty( $remaining_product_ids ) ) {
@@ -833,6 +836,7 @@ class Manual_Synchronization extends Stepped_Job {
 				throw new \Exception( 'API response data is missing' );
 			}
 	
+			$in_progress['staged_product_ids']            = $staged_product_ids;
 			$in_progress['unprocessed_upsert_response'] = wp_json_encode( $upsert_response, JSON_PRETTY_PRINT );
 			$this->set_attr( 'in_progress_upsert_catalog_objects', $in_progress );
 	
