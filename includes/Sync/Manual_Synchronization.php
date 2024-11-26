@@ -700,7 +700,7 @@ class Manual_Synchronization extends Stepped_Job {
 		$product_ids                = $this->get_attr( 'upsert_new_product_ids', $this->get_attr( 'validated_product_ids', array() ) );
 		$processed_product_ids      = $this->get_attr( 'processed_product_ids', array() );
 		$inventory_push_product_ids = $this->get_attr( 'inventory_push_product_ids', array() );
-		
+
 		// remove IDs that have already been processed
 		$product_ids = array_diff( $product_ids, $processed_product_ids );
 		if ( empty( $product_ids ) ) {
@@ -736,7 +736,7 @@ class Manual_Synchronization extends Stepped_Job {
 
 		$upsert_new_product_ids = $this->get_attr( 'upsert_new_product_ids', array() );
 		$updated_product_ids    = array_merge( $result['unprocessed'], $upsert_new_product_ids );
-		$this->set_attr( 'upsert_new_product_ids', array_merge( $result['unprocessed'], $upsert_new_product_ids ) );
+		$this->set_attr( 'upsert_new_product_ids', $updated_product_ids );
 
 		// if all products were processed, move on.
 		if ( empty( $updated_product_ids ) ) {
@@ -806,18 +806,18 @@ class Manual_Synchronization extends Stepped_Job {
 				if ( in_array( $product_id, $staged_product_ids, true ) ) {
 					continue;
 				}
-	
+
 				if ( ! $object instanceof CatalogObject ) {
 					$object = $this->convert_to_catalog_object( $object );
 				}
-	
+
 				$product                                  = wc_get_product( $product_id );
 				$original_square_image_ids[ $product_id ] = $product->get_meta( '_square_item_image_id' );
-	
+
 				$catalog_item = new Catalog_Item( $product, $is_delete_action );
 				$batch        = $catalog_item->get_batch( $object );
 				$object_count = $catalog_item->get_batch_object_count();
-	
+
 				if ( $this->get_max_objects_total() >= $object_count + $total_object_count ) {
 					$batches[]            = $batch;
 					$total_object_count  += $object_count;
@@ -826,7 +826,7 @@ class Manual_Synchronization extends Stepped_Job {
 					break;
 				}
 			}
-			
+
 			$start           = microtime( true );
 			$idempotency_key = wc_square()->get_idempotency_key( md5( serialize( $batches ) ) . time() . '_upsert_products' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			$response        = wc_square()->get_api()->batch_upsert_catalog_objects( $idempotency_key, $batches );
@@ -835,13 +835,13 @@ class Manual_Synchronization extends Stepped_Job {
 			if ( ! $upsert_response instanceof BatchUpsertCatalogObjectsResponse ) {
 				throw new \Exception( 'API response data is missing' );
 			}
-	
-			$in_progress['staged_product_ids']            = $staged_product_ids;
+
+			$in_progress['staged_product_ids']          = $staged_product_ids;
 			$in_progress['unprocessed_upsert_response'] = wp_json_encode( $upsert_response, JSON_PRETTY_PRINT );
 			$this->set_attr( 'in_progress_upsert_catalog_objects', $in_progress );
-	
+
 			$duration = number_format( microtime( true ) - $start, 2 );
-	
+
 			wc_square()->log( 'Upserted ' . count( $upsert_response->getObjects() ) . ' objects in ' . $duration . 's' );
 		}
 
@@ -994,7 +994,7 @@ class Manual_Synchronization extends Stepped_Job {
 	 * @return CatalogObject
 	 */
 	protected function convert_to_catalog_object( $object_data ) {
-		$object_data = ! is_string( $object_data ) ? json_encode( $object_data ) : $object_data;
+		$object_data = ! is_string( $object_data ) ? wp_json_encode( $object_data ) : $object_data;
 		$object      = ApiHelper::getJsonHelper()->mapClass( json_decode( $object_data ), 'Square\\Models\\CatalogObject' );
 
 		return $object instanceof CatalogObject ? $object : null;
