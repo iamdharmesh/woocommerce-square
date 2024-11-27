@@ -50,7 +50,7 @@ test.beforeAll( 'Setup', async ( { baseURL } ) => {
 	await browser.close();
 } );
 
-test( 'OnePlus 8 pushed to Square with inventory', async ( { page } ) => {
+test( 'OnePlus 8 pushed to Square with inventory @sync', async ( { page } ) => {
 	test.slow();
 
 	await page.goto( '/wp-admin/admin.php?page=wc-settings&tab=square&section=update' );
@@ -94,7 +94,7 @@ test( 'OnePlus 8 pushed to Square with inventory', async ( { page } ) => {
 } );
 
 
-test('Sync Inventory stock from Square on the product edit screen - (SOR WooCommerce - Stock management enabled)', async ({
+test('Sync Inventory stock from Square on the product edit screen - (SOR WooCommerce - Stock management enabled) @sync', async ({
 	page,
 }) => {
 	await page.goto('/product/oneplus-8/');
@@ -136,7 +136,7 @@ test('Sync Inventory stock from Square on the product edit screen - (SOR WooComm
 });
 
 
-test('Sync Inventory stock from Square on the product edit screen - (SOR WooCommerce - Stock management disabled)', async ({
+test('Sync Inventory stock from Square on the product edit screen - (SOR WooCommerce - Stock management disabled) @sync', async ({
 	page,
 }) => {
 	await page.goto('/product/oneplus-8/');
