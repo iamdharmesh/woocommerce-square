@@ -713,14 +713,12 @@ class Manual_Synchronization extends Stepped_Job {
 		$upsert_retry_product_ids = $this->get_attr( 'upsert_retry_product_ids', array() );
 		if ( ! empty( $retry_idempotency_key ) && ! empty( $upsert_retry_product_ids ) ) {
 			$product_ids = $upsert_retry_product_ids;
+		} elseif ( count( $product_ids ) > $this->get_max_objects_per_upsert() ) {
+			$product_ids_batch = array_slice( $product_ids, 0, $this->get_max_objects_per_upsert() );
+			$this->set_attr( 'upsert_new_product_ids', array_diff( $product_ids, $product_ids_batch ) );
+			$product_ids = $product_ids_batch;
 		} else {
-			if ( count( $product_ids ) > $this->get_max_objects_per_upsert() ) {
-				$product_ids_batch = array_slice( $product_ids, 0, $this->get_max_objects_per_upsert() );
-				$this->set_attr( 'upsert_new_product_ids', array_diff( $product_ids, $product_ids_batch ) );
-				$product_ids = $product_ids_batch;
-			} else {
-				$this->set_attr( 'upsert_new_product_ids', array() );
-			}
+			$this->set_attr( 'upsert_new_product_ids', array() );
 		}
 
 		$catalog_objects = array();
@@ -859,7 +857,7 @@ class Manual_Synchronization extends Stepped_Job {
 				$error_message = $e->getMessage();
 
 				// Retry the request if it was rate limited, and we are uploading new products. Retry up to 3 times.
-				if ( false !== strpos( $error_message, needle: 'RATE_LIMITED' ) && $new_products && $retry < 3 ) {
+				if ( false !== strpos( $error_message, 'RATE_LIMITED' ) && $new_products && $retry < 3 ) {
 					$this->set_attr( 'upsert_retry_idempotency_key', $idempotency_key );
 					$this->set_attr( 'upsert_retry_product_ids', $product_ids );
 				}
