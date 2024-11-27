@@ -708,12 +708,19 @@ class Manual_Synchronization extends Stepped_Job {
 			return;
 		}
 
-		if ( count( $product_ids ) > $this->get_max_objects_per_upsert() ) {
-			$product_ids_batch = array_slice( $product_ids, 0, $this->get_max_objects_per_upsert() );
-			$this->set_attr( 'upsert_new_product_ids', array_diff( $product_ids, $product_ids_batch ) );
-			$product_ids = $product_ids_batch;
+		// Use the previous idempotency key and product list to retry the upsert request, if previous request failed with rate limit error.
+		$retry_idempotency_key    = $this->get_attr( 'upsert_retry_idempotency_key', null );
+		$upsert_retry_product_ids = $this->get_attr( 'upsert_retry_product_ids', array() );
+		if ( ! empty( $retry_idempotency_key ) && ! empty( $upsert_retry_product_ids ) ) {
+			$product_ids = $upsert_retry_product_ids;
 		} else {
-			$this->set_attr( 'upsert_new_product_ids', array() );
+			if ( count( $product_ids ) > $this->get_max_objects_per_upsert() ) {
+				$product_ids_batch = array_slice( $product_ids, 0, $this->get_max_objects_per_upsert() );
+				$this->set_attr( 'upsert_new_product_ids', array_diff( $product_ids, $product_ids_batch ) );
+				$product_ids = $product_ids_batch;
+			} else {
+				$this->set_attr( 'upsert_new_product_ids', array() );
+			}
 		}
 
 		$catalog_objects = array();
@@ -724,7 +731,7 @@ class Manual_Synchronization extends Stepped_Job {
 			$catalog_objects[ $product_id ] = $catalog_object;
 		}
 
-		$result = $this->upsert_catalog_objects( $catalog_objects );
+		$result = $this->upsert_catalog_objects( $catalog_objects, true );
 
 		// newly upserted IDs should get their inventory pushed
 		$inventory_push_product_ids = array_merge( $result['processed'], $inventory_push_product_ids );
@@ -765,11 +772,12 @@ class Manual_Synchronization extends Stepped_Job {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $objects list of catalog objects to update, as $product_id => CatalogItem
+	 * @param array $objects      list of catalog objects to update, as $product_id => CatalogItem
+	 * @param bool  $new_products Whether these are new products or not.
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function upsert_catalog_objects( array $objects ) {
+	protected function upsert_catalog_objects( array $objects, $new_products = false ) {
 		wc_square()->log( 'Upserting ' . count( $objects ) . ' catalog objects' );
 
 		$is_delete_action          = 'delete' === $this->get_attr( 'action' );
@@ -827,10 +835,37 @@ class Manual_Synchronization extends Stepped_Job {
 				}
 			}
 
-			$start           = microtime( true );
-			$idempotency_key = wc_square()->get_idempotency_key( md5( serialize( $batches ) ) . time() . '_upsert_products' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-			$response        = wc_square()->get_api()->batch_upsert_catalog_objects( $idempotency_key, $batches );
-			$upsert_response = $response->get_data();
+			try {
+				$start           = microtime( true );
+				$idempotency_key = wc_square()->get_idempotency_key( md5( serialize( $batches ) ) . time() . '_upsert_products' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+
+				if ( $new_products ) {
+					// Use the retry idempotency key if it exists.
+					$retry_idempotency_key    = $this->get_attr( 'upsert_retry_idempotency_key', null );
+					$upsert_retry_product_ids = $this->get_attr( 'upsert_retry_product_ids', array() );
+					if ( ! empty( $retry_idempotency_key ) && ! empty( $upsert_retry_product_ids ) ) {
+						$idempotency_key = $retry_idempotency_key;
+
+						// Reset the retry idempotency key and product ids.
+						$this->set_attr( 'upsert_retry_idempotency_key', null );
+						$this->set_attr( 'upsert_retry_product_ids', null );
+					}
+				}
+
+				$response        = wc_square()->get_api()->batch_upsert_catalog_objects( $idempotency_key, $batches );
+				$upsert_response = $response->get_data();
+			} catch ( \Exception $e ) {
+				$retry         = $this->get_attr( 'retry', 0 );
+				$error_message = $e->getMessage();
+
+				// Retry the request if it was rate limited, and we are uploading new products. Retry up to 3 times.
+				if ( false !== strpos( $error_message, needle: 'RATE_LIMITED' ) && $new_products && $retry < 3 ) {
+					$this->set_attr( 'upsert_retry_idempotency_key', $idempotency_key );
+					$this->set_attr( 'upsert_retry_product_ids', $product_ids );
+				}
+				// Re-throw the exception to allow centralized error handling at the job level.
+				throw $e;
+			}
 
 			if ( ! $upsert_response instanceof BatchUpsertCatalogObjectsResponse ) {
 				throw new \Exception( 'API response data is missing' );
@@ -950,16 +985,13 @@ class Manual_Synchronization extends Stepped_Job {
 			}
 
 			$in_progress['processed_remote_catalog_item_ids'][] = $remote_item_id;
-
-			$result['processed'][] = $product->get_id();
-			$result['unprocessed'] = array_diff( $product_ids, $result['processed'] );
 		}
 
 		$this->set_attr( 'pull_inventory_variation_ids', $pull_inventory_variation_ids );
 
 		$duration = number_format( microtime( true ) - $start, 2 );
 
-		wc_square()->log( 'Stored Square data to ' . count( $result['processed'] ) . ' products in ' . $duration . 's' );
+		wc_square()->log( 'Stored Square data to ' . count( $staged_product_ids ) . ' products in ' . $duration . 's' );
 
 		// log any failed products
 		foreach ( array_diff( $staged_product_ids, $successful_product_ids ) as $product_id ) {
