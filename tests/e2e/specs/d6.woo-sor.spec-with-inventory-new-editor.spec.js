@@ -33,7 +33,7 @@ test.beforeAll( 'Setup', async ( ) => {
 	await browser.close();
 } );
 
-test( 'OnePlus 8 pushed to Square with inventory added by Product Block Editor @sync', async ( { page, baseURL } ) => {
+test( 'OnePlus 8 pushed to Square with inventory (New Editor) @sync', async ( { page, baseURL } ) => {
 	test.slow();
 
 	if ( ! ( await doesProductExist( baseURL, 'oneplus-8' ) ) ) {
