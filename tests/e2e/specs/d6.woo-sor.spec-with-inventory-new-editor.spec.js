@@ -104,10 +104,10 @@ test( 'OnePlus 8 pushed to Square with inventory (New Editor) @sync', async ( { 
 	const { name, variations } = extractCatalogInfo( catalogData.objects[0] );
 
 	expect( name ).toEqual( 'OnePlus 8' );
-	expect( variations[0].sku ).toEqual( 'oneplus-8' );
-	expect( variations[0].price ).toEqual( 29900 );
+	expect( variations[ 0 ].sku ).toEqual( 'oneplus-8' );
+	expect( variations[ 0 ].price ).toEqual( 29900 );
 
-	let inventory = await retrieveInventoryCount( variations[0].id );
+	let inventory = await retrieveInventoryCount( variations[ 0 ].id );
 
 	if ( ! inventory.counts ) {
 		await page.exposeFunction( 'retrieveInventoryCountInPage', retrieveInventoryCount );
