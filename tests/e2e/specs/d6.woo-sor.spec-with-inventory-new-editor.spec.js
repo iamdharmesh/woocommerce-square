@@ -32,6 +32,7 @@ test( 'OnePlus 8 pushed to Square with inventory @sync', async ( { page, baseURL
 	await page.getByTestId( 'square-settings-save-button' ).click();
 
 	await expect( await page.getByText( 'Changes Saved!' ) ).toBeVisible();
+	await page.waitForTimeout( 2000 );
 
 	if ( ! ( await doesProductExist( baseURL, 'oneplus-8' ) ) ) {
 		await createProduct(
