@@ -561,6 +561,7 @@ export async function isToggleChecked( page, selector ) {
 export async function saveSquareSettings( page ) {
 	await page.getByTestId( 'square-settings-save-button' ).click();
 	await expect( await page.getByText( 'Changes Saved!' ) ).toBeVisible();
+	await page.waitForTimeout( 2000 );
 }
 
 export async function savePaymentGatewaySettings( page ) {
@@ -654,7 +655,7 @@ export async function completePreOrder(page, orderId) {
 
 /**
  * Subscription renewal.
- * 
+ *
  * @param {Page} page Playwright page object.
  */
 export async function renewSubscription(page) {
