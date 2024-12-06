@@ -46,6 +46,7 @@ export async function clearCart( page ) {
 export async function visitCheckout( page, isBlock = true ) {
 	if ( isBlock ) {
 		await page.goto( '/checkout' );
+		await page.locator( 'form.wc-block-checkout__form' ).waitFor();
 	} else {
 		await page.goto( '/checkout-old' );
 	}
